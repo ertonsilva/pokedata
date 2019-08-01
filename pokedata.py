@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-# Autor: Erton Silva
+# Author: Erton Silva
 # -*- coding: utf-8 -*-
 
 import argparse
 import sys
 import requests
 import json
+from requests.exceptions import HTTPError
 
-#argumentos
+#arguments
 parser = argparse.ArgumentParser(description='Script to request pokemon info from "pokeapi.co", enjoy!',
     usage='%(prog)s [options]',
     epilog='If you have any questions please use the option --author and get in contact'
@@ -25,49 +26,59 @@ args = parser.parse_args()
 #link da API
 api_link = ('https://pokeapi.co/api/v2/')
 
-if args.name != None:
-    pokename = ('pokemon/' + args.name)
+def check_args():
+    arguments = [""]
 
-def apirequest(api, pokename):
-    teste = requests.get('https://pokeapi.co/api/v2/pokemon/pikachu')
-    return teste.content
-
-if len(sys.argv)==1:
-     parser.print_help(sys.stderr)
-     sys.exit(1)
-
-if args.verbose == 1:
-    print ('verbosinho')
-
-elif args.verbose == 2:
-    print ('verboso')
-
-elif args.verbose == 3:
-    if args.name != None:
-        print (apirequest(api, pokename))
-    elif args.berry != None:
-        print ('testado')
-    elif args.generation != None:
-        print ('testado')
-    elif args.type != None:
-        print ('testado')
-    elif args.item != None:
-        print ('testado')
+    if args.name != None:	
+    	if type(args.name) == str:
+            pokename = ('pokemon/')
+            arguments.append(pokename)
     else:
-        print ('\nPlease inform something to do the search, valid options are \'-n\' \'-g\' \'-t\' \'-i\'\n')
-        parser.print_help(sys.stderr)
-        sys.exit(1)
+    	arguments.append('None')
+    
 
-elif args.verbose == None:
+    if args.verbose != None:
+        arguments.append(args.verbose)
+    else:
+    	arguments.append('None')
+
+    if args.berry != None:
+	    arguments.append(args.berry)
+    else:
+	    arguments.append('None')
+
+    if args.generation != None:
+	    arguments.append(args.generation)
+    else:
+	    arguments.append('None')
+
+    if args.type != None:
+	    arguments.append(args.type)
+    else:
+	    arguments.append('None')
+
+    if args.item != None:
+	    arguments.append(args.type)
+    else:
+	    arguments.append('None')
+
     if args.author == True:
-        print ('\nIf you have a problem or questions, get in touch:')
-        print ('Erton Silva\nTelegram: @ertonsilva\nGit: https://github.com/ertonsilva/ \nE-mail: erton.silva14@gmail.com\n')
-
-elif args.verbose >= 4:
-    print ('The maximum verbosity is 3')
-
+	    arguments.append(args.author)
+    else:
+	    arguments.append('None')
+    return arguments
 
 
+def check_api_connectivity(api_link):
+    try:
+        response = requests.get(api_link)
+        response.raise_for_status()
+    except HTTPError as http_err:
+        print('An HTTP error as occurred {http_err}')
+    except Exception as err:
+        print ('Other error occurred: {err}')
+    else:
+        return True
 
 def get_pokemon_raw_data(api_link, name):
     api_link = (api_link + 'pokemon/' + name)
@@ -75,7 +86,10 @@ def get_pokemon_raw_data(api_link, name):
     raw_request = json.loads(json_raw_request.content)
     return raw_request
 
-print (get_pokemon_raw_data(api_link, args.name))
+check = (check_api_connectivity(api_link))
+
+
+#print (get_pokemon_raw_data(api_link, args.name))
 
 #funcões para pokemon
 #podem ser chamadas com nome ou ID
