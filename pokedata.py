@@ -7,6 +7,7 @@ import sys
 import requests
 import json
 from requests.exceptions import HTTPError
+import pokeparser
 
 #arguments
 parser = argparse.ArgumentParser(description='Script to request pokemon info from "pokeapi.co", enjoy!',
@@ -22,71 +23,57 @@ parser.add_argument('-v', '--verbose', action='count', help='Get the verbose out
 parser.add_argument('--version', action='version', version='%(prog)s 0.1', help='Show this script version')
 parser.add_argument('--author', action='store_true', help='Get the author name and contacts')
 args = parser.parse_args()
-
-#link da API
 api_link = ('https://pokeapi.co/api/v2/')
 
-def check_args():
-    arguments = [""]
+arguments = {}
 
+if len(sys.argv)==1:
+     parser.print_help(sys.stderr)
+     sys.exit(1)
+
+if args.author == True:
+    arguments['Author'] = 'True'
+    authorcredits = open('credits.txt', 'r')
+    print(authorcredits.read())
+    sys.exit(1)
+else:
+    arguments['Author'] = False
     if args.name != None:	
-    	if type(args.name) == str:
-            pokename = ('pokemon/')
-            arguments.append(pokename)
+        arguments['Nameid'] = args.name
     else:
-    	arguments.append('None')
-    
-
+    	arguments['Nameid'] = 'None'
     if args.verbose != None:
-        arguments.append(args.verbose)
+        arguments['Verbose'] = args.verbose
     else:
-    	arguments.append('None')
-
+    	arguments['Verbose'] = 'None'
     if args.berry != None:
-	    arguments.append(args.berry)
+	    arguments['Berry'] = args.berry
     else:
-	    arguments.append('None')
-
+	    arguments['Berry'] = 'None'
     if args.generation != None:
-	    arguments.append(args.generation)
+	    arguments['Generation'] = args.generation
     else:
-	    arguments.append('None')
-
+	    arguments['Generation'] = 'None'
     if args.type != None:
-	    arguments.append(args.type)
+	    arguments['Type'] = args.type
     else:
-	    arguments.append('None')
-
+	    arguments['Type'] = 'None'
     if args.item != None:
-	    arguments.append(args.type)
+	    arguments['Item'] = args.item
     else:
-	    arguments.append('None')
+	    arguments['Item'] = 'None'
 
-    if args.author == True:
-	    arguments.append(args.author)
-    else:
-	    arguments.append('None')
-    return arguments
-
-
-def check_api_connectivity(api_link):
+def get_raw_data(request_link):
     try:
-        response = requests.get(api_link)
+        response = requests.get(request_link)
         response.raise_for_status()
     except HTTPError as http_err:
         print('An HTTP error as occurred {http_err}')
     except Exception as err:
         print ('Other error occurred: {err}')
     else:
-        return True
-
-def get_pokemon_raw_data(api_link, name):
-    api_link = (api_link + 'pokemon/' + name)
-    json_raw_request = requests.get(api_link)
-    raw_request = json.loads(json_raw_request.content)
-    return raw_request
-
-check = (check_api_connectivity(api_link))
+        raw_data = json.loads(response.content)
+        return raw_data
 
 
 #print (get_pokemon_raw_data(api_link, args.name))
