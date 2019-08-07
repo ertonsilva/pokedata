@@ -23,8 +23,6 @@ parser.add_argument('-v', '--verbose', action='count', help='Get the verbose out
 parser.add_argument('--version', action='version', version='%(prog)s 0.1', help='Show this script version')
 parser.add_argument('--author', action='store_true', help='Get the author name and contacts')
 args = parser.parse_args()
-api_link = ('https://pokeapi.co/api/v2/')
-
 arguments = {}
 
 if len(sys.argv)==1:
